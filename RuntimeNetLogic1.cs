@@ -8,10 +8,13 @@ using FTOptix.Retentivity;
 using FTOptix.SQLiteStore;
 using FTOptix.Store;
 using FTOptix.UI;
+using NPOI.SS.Formula.Functions;
 using NPOI.Util;
 using S7.Net;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -19,13 +22,16 @@ using System.Threading;
 using TestProject1;
 using UAManagedCore;
 using OpcUa = UAManagedCore.OpcUa;
+using Serilog;
+using ILogger = Serilog.ILogger;
 #endregion
 
 public class RuntimeNetLogic1 : BaseNetLogic
 {
-  
+  private static readonly string  dbPath = @"E:\aa\Test.db";
     public override void Start()
     {
+        //showdata();
         // Insert code to be executed when the user-defined logic is started
     }
 
@@ -43,7 +49,7 @@ public class RuntimeNetLogic1 : BaseNetLogic
         CreateXml.CreateRemoteThingXml();
     }
     [ExportMethod]
-    public void test()
+    public static void  Test()
     {
 
         // 创建连接
@@ -62,4 +68,15 @@ public class RuntimeNetLogic1 : BaseNetLogic
 
     }
 
+    [ExportMethod]
+    public static void Showdata()
+    {
+
+        string multiLineText = "报警1：温度过高报警2：压力异常报警3：设备离线";
+        Project.Current.GetVariable("Model/TxtVaule").Value= multiLineText;
+        var db = new SQLiteHelper(dbPath);
+             db.GetAllTableNames();
+ 
+
+    }
 }
