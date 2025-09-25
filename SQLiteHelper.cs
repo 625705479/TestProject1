@@ -121,13 +121,17 @@ namespace TestProject1
             public DynamicQueryBuilder Where(string condition, params object[] values)
             {
                 _whereClause = condition;
-
+                var paramNames = Regex.Matches(condition, @"@(\w+)")
+                                      .Cast<Match>()
+                                      .Select(m => m.Groups[1].Value)
+                                      .Distinct()
+                                      .ToList();
                 // 解析参数并添加
                 if (values != null && values.Length > 0)
                 {
                     for (int i = 0; i < values.Length; i++)
                     {
-                        string paramName = $"@p{i}";
+                        string paramName = $"{paramNames[i]}";
                         _parameters.Add(new SQLiteParameter(paramName, values[i] ?? DBNull.Value));
                     }
                 }
@@ -252,6 +256,47 @@ namespace TestProject1
                     }
                 }
             }
+            /// <summary>
+            /// 查询单个字段的值并返回
+            /// </summary>
+            /// <param name="fieldName">要查询的字段名</param>
+            /// <returns>字段的值，如果没有找到则返回null</returns>
+            public object GetSingleObject(string fieldName)
+            {
+                if (string.IsNullOrEmpty(fieldName))
+                {
+                    throw new ArgumentNullException(nameof(fieldName), "字段名不能为空");
+                }
+
+                var sqlBuilder = new StringBuilder($"SELECT {fieldName} FROM {_tableName}");
+
+                // 添加WHERE条件
+                if (!string.IsNullOrEmpty(_whereClause))
+                {
+                    sqlBuilder.Append($" WHERE {_whereClause}");
+                }
+
+                // 添加排序
+                if (!string.IsNullOrEmpty(_orderBy))
+                {
+                    sqlBuilder.Append($" ORDER BY {_orderBy}");
+                }
+
+                // 只取第一条记录
+                sqlBuilder.Append(" LIMIT 1");
+
+                using (var connection = new SQLiteConnection(_connectionString))
+                {
+                    connection.Open();
+                    using (var command = new SQLiteCommand(sqlBuilder.ToString(), connection))
+                    {
+                        command.Parameters.AddRange(_parameters.ToArray());
+
+                        object result = command.ExecuteScalar();
+                        return result == DBNull.Value ? null : result;
+                    }
+                }
+            }
         }
         #endregion
         #region SQLite 模拟 db.Queryable<T>() 风格
@@ -358,6 +403,7 @@ namespace TestProject1
                 Expression<Func<T, TJoin, bool>> onExpression,
                 string alias = "t2") where TJoin : new()
             {
+               
                 _joinInfos.Add(new JoinInfo
                 {
                     JoinEntityType = typeof(TJoin),
@@ -788,7 +834,7 @@ namespace TestProject1
         /// <param name="tables"></param>
         /// <param name="namespaceName"></param>
         /// <param name="outputDirectory"></param>
-        public static void GenerateEntitiesFromDataTables(
+        public  void GenerateEntitiesFromDataTables(
           Dictionary<string, DataTable> tables,
           string namespaceName,
           string outputDirectory)
@@ -1712,11 +1758,6 @@ namespace TestProject1
             }
         }
         #endregion
- 
-
-
-
-
 
     }
 
