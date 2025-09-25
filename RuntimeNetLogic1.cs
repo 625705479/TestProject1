@@ -218,22 +218,87 @@ public class RuntimeNetLogic1 : BaseNetLogic
     /// </summary>
     public static void ReadRedis() {
         //获取字符串:
-        var db=RedisExample.GetDatabase(); 
-        string username = db.StringGet("username1");
-        //获取列表：
-        RedisValue[] messages = db.ListRange("message");
-        //获取哈希表：
-        string name = db.HashGet("hashkey", "name");
-        HashEntry[] allFields = db.HashGetAll("hashkey");
-        //获取集合：
-        RedisValue[] allValues = db.SetMembers("test");
-        //获取有序集合：
-        RedisValue[] topUsers = db.SortedSetRangeByScore("product");
-        double? score = db.SortedSetScore("product", "banana");
-        string cachedJson = db.StringGet("product:1");
-        var cachedProduct = JsonConvert.DeserializeObject<Product>(cachedJson);
-        var productname = cachedProduct.name;
-      
+        //    var db = RedisExample.GetDatabase();
+        //    string username = db.StringGet("username1");
+        //    获取列表：
+        //    RedisValue[] messages = db.ListRange("message");
+        //    获取哈希表：
+        //    string name = db.HashGet("hashkey", "name");
+        //    HashEntry[] allFields = db.HashGetAll("hashkey");
+        //    获取集合：
+        //    RedisValue[] allValues = db.SetMembers("test");
+        //    获取有序集合：
+        //    RedisValue[] topUsers = db.SortedSetRangeByScore("product");
+        //    double? score = db.SortedSetScore("product", "banana");
+        //    string cachedJson = db.StringGet("product:1");
+        //    var cachedProduct = JsonConvert.DeserializeObject<Product>(cachedJson);
+        //    var productname = cachedProduct.name;
+        // 初始化连接
+        RedisExample.InitializeRedis();
+
+
+
+        // 1. 字符串操作
+        RedisExample.Operate(
+            RedisExample.RedisType.String,
+            "username",
+            "张三", dbIndex: 1,
+            useExpire: true,
+            expireMinutes: 15);
+
+        // 2. 列表操作
+        RedisExample.Operate(
+            RedisExample.RedisType.List,
+            "messages",
+            new string[] { "消息1", "消息2", "消息3" }, useExpire: true, dbIndex: 1,
+            expireMinutes: 15);
+
+        // 3. 哈希表操作
+        RedisExample.Operate(
+           RedisExample.RedisType.Hash,
+            "user:1001",
+            hashEntries: new HashEntry[] {
+                new HashEntry("name", "李四"),
+                new HashEntry("age", 30)
+            }, dbIndex: 1,
+            useExpire: true,
+            expireMinutes: 15);
+
+        // 4. 集合操作
+        RedisExample.Operate(
+            RedisExample.RedisType.Set,
+            "tags",
+            "热门",
+            dbIndex: 1,
+            useExpire: true,
+            expireMinutes: 15);
+
+        // 5. 有序集合操作
+        RedisExample.Operate(
+           RedisExample.RedisType.ZSet,
+            "rank:game",
+            "user1",
+            score: 95,
+                        dbIndex: 1,
+                    useExpire: true,
+            expireMinutes: 15);
+        // 6. 流（新增，15分钟过期）
+        RedisExample.Operate(
+            RedisExample.RedisType.Stream,
+            "order_events",  // 流的键名
+            streamEntries: new NameValueEntry[] {  // 流消息的字段（键值对）
+                new NameValueEntry("order_id", "ORD-12345"),
+                new NameValueEntry("status", "paid"),
+                new NameValueEntry("amount", 99.9)
+            },
+            useExpire: true);  // 启用15分钟过期
+
+
+
+
+
+
+
     }
 
     public class Product
