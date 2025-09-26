@@ -1,13 +1,18 @@
-﻿using NPOI.HSSF.UserModel;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders;
+using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace TestProject1
 {
@@ -218,7 +223,62 @@ namespace TestProject1
 
             return columnMappings;
         }
+        
+       
+
+
+        /// <summary>
+        /// 下载Excel文件
+        /// </summary>
+        /// <returns>文件结果</returns>
+        public static FileContent FileDownExcel()
+        {
+            try
+            {
+
+                string remoteIp = "127.0.0.1"; // 远程服务器IP
+                string driveShare = "E$";
+                string folderPath = "generate"; // 远程服务器上共享的文件夹名
+                string fileName1 = "1.html";
+                //string filePath = "E:\\generate\\新增点位.xlsx";
+                string filePath = $@"\\{remoteIp}\{driveShare}\{folderPath}\{fileName1}";
+                byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+                string fileName = Path.GetFileName(filePath);
+
+                return FileInfos(fileBytes, "application/vnd.ms-excel", fileName);
+            }
+            catch (Exception ex)
+            {
+                Console.Write($"下载失败：{ex.Message}");
+                return null;
+            }
+        }
+
+        private static FileContent FileInfos(byte[] fileContents, string contentType, string fileDownloadName)
+        {
+            return new FileContent(fileContents, contentType)
+            {
+                FileDownloadName = fileDownloadName
+            
+            };
+        }
     }
+
+    public class FileContent
+    {
+
+        public string FileDownloadName { get; internal set; }
+        public byte[] fileContents { get; internal set; }
+        public string contentType { get; internal set; }
+        public FileContent(byte[] fileContents, string contentType)
+        {
+            this.fileContents = fileContents;
+            this.contentType = contentType;
+        }
+
+
+    }
+
     /// <summary>
     /// 用于标记属性中文描述的特性
     /// </summary>
@@ -252,4 +312,5 @@ namespace TestProject1
         [ColumnDescription("是否启用")]
         public bool IsActive { get; set; }
     }
-}
+
+    }

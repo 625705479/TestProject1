@@ -21,12 +21,14 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 using TestProject1;
 using TestProject1.Model;
@@ -110,7 +112,10 @@ public class RuntimeNetLogic1 : BaseNetLogic
             .OrderBy("t1.id") // t1 是主表默认别名，对应 GradingTypeCorrespond
             .ToList<TwoTableClass>();
         string formattedTime = System.DateTime.Now.ToString("[HH:mm:ss.fff]");
-        ReadRedis();
+        _ = ReadRedis();
+    ExcelHelper.FileDownExcel();
+
+
         ////将这个result转成string数组
         //string[] resultArray = new string[result.Count];
         //for (int i = 0; i < result.Count; i++)
@@ -121,6 +126,28 @@ public class RuntimeNetLogic1 : BaseNetLogic
         //RedisExample.ListOperations("message", resultArray);
 
     }
+    [ExportMethod]
+    public static void SaveExcelFile()
+    {
+        var result=ExcelHelper.FileDownExcel();
+        string userProfilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        string saveFilePath = userProfilePath + "\\Downloads\\" + result.FileDownloadName;
+        //通过io文件流保存到本地
+        using (var fileStream = new FileStream(
+          path: saveFilePath,
+          mode: FileMode.Create, // 不存在则创建，存在则覆盖
+          access: FileAccess.Write,
+          share: FileShare.None)) // 写入时禁止其他程序占用
+        {
+            // 将FileContent中的字节流写入本地文件
+            fileStream.Write(result.fileContents, 0, result.fileContents.Length);
+            // 强制刷新缓冲区，确保数据完全写入（大文件建议加）
+            fileStream.Flush();
+        }
+
+
+    }
+
     public static void addVariables() {
 
         var Object1 = Project.Current.GetObject("Model/Object1").Children.ToList();
@@ -216,7 +243,7 @@ public class RuntimeNetLogic1 : BaseNetLogic
     /// <summary>
     /// 读取Redis数据
     /// </summary>
-    public static void ReadRedis() {
+    public static async Task ReadRedis() {
         //获取字符串:
         //    var db = RedisExample.GetDatabase();
         //    string username = db.StringGet("username1");
@@ -233,73 +260,71 @@ public class RuntimeNetLogic1 : BaseNetLogic
         //    string cachedJson = db.StringGet("product:1");
         //    var cachedProduct = JsonConvert.DeserializeObject<Product>(cachedJson);
         //    var productname = cachedProduct.name;
-        // 初始化连接
-        RedisExample.InitializeRedis();
+        // 1. 初始化连接（确保只初始化一次）
+        RedisExample.GetConnection();
 
+        // 2. 统一配置
+        int dbIndex = 1;
+        TimeSpan expiry = TimeSpan.FromMinutes(15);
+        int maxParallelism = 4; // 控制并行操作数量
 
+        // 3. 获取数据库连接（复用连接）
+        var db = RedisExample.GetDatabase(dbIndex);
 
-        // 1. 字符串操作
-        RedisExample.Operate(
-            RedisExample.RedisType.String,
-            "username",
-            "张三", dbIndex: 1,
-            useExpire: true,
-            expireMinutes: 15);
+        // 4. 定义所有异步操作
+        var operations = new List<Task>
+    {
+        // 字符串操作 - 使用原生异步方法
+        db.StringSetAsync("username", "张三", expiry),
+        
+        // 列表操作
+        Task.Run(async () =>
+        {
+            foreach (var msg in new[] { "消息1", "消息2", "消息3" })
+            {
+                await db.ListRightPushAsync("messages", msg);
+            }
+            await db.KeyExpireAsync("messages", expiry);
+        }),
+        
+        // 哈希表操作
+        db.HashSetAsync("user:1001", new HashEntry[] {
+            new HashEntry("name", "李四"),
+            new HashEntry("age", 30)
+        })
+        .ContinueWith(_ => db.KeyExpireAsync("user:1001", expiry)),
+        
+        // 集合操作
+        db.SetAddAsync("tags", "热门")
+        .ContinueWith(_ => db.KeyExpireAsync("tags", expiry)),
+        
+        // 有序集合操作
+        db.SortedSetAddAsync("rank:game", "user1", 95)
+        .ContinueWith(_ => db.KeyExpireAsync("rank:game", expiry)),
+        
+        // 流操作
+        db.StreamAddAsync("order_events", new NameValueEntry[] {
+            new NameValueEntry("order_id", "ORD-12345"),
+            new NameValueEntry("status", "paid"),
+            new NameValueEntry("amount", 99.9)
+        })
+        .ContinueWith(_ => db.KeyExpireAsync("order_events", expiry))
+    };
 
-        // 2. 列表操作
-        RedisExample.Operate(
-            RedisExample.RedisType.List,
-            "messages",
-            new string[] { "消息1", "消息2", "消息3" }, useExpire: true, dbIndex: 1,
-            expireMinutes: 15);
-
-        // 3. 哈希表操作
-        RedisExample.Operate(
-           RedisExample.RedisType.Hash,
-            "user:1001",
-            hashEntries: new HashEntry[] {
-                new HashEntry("name", "李四"),
-                new HashEntry("age", 30)
-            }, dbIndex: 1,
-            useExpire: true,
-            expireMinutes: 15);
-
-        // 4. 集合操作
-        RedisExample.Operate(
-            RedisExample.RedisType.Set,
-            "tags",
-            "热门",
-            dbIndex: 1,
-            useExpire: true,
-            expireMinutes: 15);
-
-        // 5. 有序集合操作
-        RedisExample.Operate(
-           RedisExample.RedisType.ZSet,
-            "rank:game",
-            "user1",
-            score: 95,
-                        dbIndex: 1,
-                    useExpire: true,
-            expireMinutes: 15);
-        // 6. 流（新增，15分钟过期）
-        RedisExample.Operate(
-            RedisExample.RedisType.Stream,
-            "order_events",  // 流的键名
-            streamEntries: new NameValueEntry[] {  // 流消息的字段（键值对）
-                new NameValueEntry("order_id", "ORD-12345"),
-                new NameValueEntry("status", "paid"),
-                new NameValueEntry("amount", 99.9)
-            },
-            useExpire: true);  // 启用15分钟过期
-
-
-
-
-
-
-
+        // 5. 控制并行度执行
+        for (int i = 0; i < operations.Count; i += maxParallelism)
+        {
+            var batch = operations.Skip(i).Take(maxParallelism);
+            await Task.WhenAll(batch);
+        }
     }
+
+
+
+
+
+
+}
 
     public class Product
     {
@@ -310,4 +335,4 @@ public class RuntimeNetLogic1 : BaseNetLogic
 
         // 其他属性...
     }
-}
+

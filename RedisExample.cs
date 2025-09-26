@@ -14,9 +14,11 @@ namespace TestProject1
     {
         public RedisExample() { }
      // 推荐使用单例模式管理ConnectionMultiplexer
-            public static ConnectionMultiplexer _redis;
-            // Redis数据结构类型枚举
-            public enum RedisType
+            public static ConnectionMultiplexer _redis;     
+        // 线程安全锁
+        private static readonly object _lockObj = new object();
+        // Redis数据结构类型枚举
+        public enum RedisType
             {
                 String,    // 字符串
                 List,      // 列表
@@ -26,38 +28,42 @@ namespace TestProject1
                   Stream     // 流（新增）
         }
 
-            // 初始化Redis连接
-            public static void InitializeRedis(string connectionString = "localhost:6379")
+        // 初始化/获取连接（确保单例+长连接）
+        public static ConnectionMultiplexer GetConnection()
+        {
+            // 第一次检查（无锁，提高性能）
+            if (_redis == null || !_redis.IsConnected)
             {
-                try
+                // 加锁确保线程安全
+                lock (_lockObj)
                 {
-                    // 连接Redis服务器，connectionString格式："ip:port,password=xxx"
-                    _redis = ConnectionMultiplexer.Connect(connectionString);
+                    // 第二次检查（防止多线程同时通过第一次检查）
+                    if (_redis == null || !_redis.IsConnected)
+                    {
+                        // 连接字符串建议配置在外部（如appsettings.json）
+                        var connectionString = "localhost:6379,password=xxx,abortConnect=false";
+                        _redis = ConnectionMultiplexer.Connect(connectionString);
 
-                    // 注册连接事件（可选）
-                    _redis.ConnectionFailed += (sender, args) =>
-                        Console.WriteLine($"Redis连接失败: {args.Exception.Message}");
-                    _redis.ConnectionRestored += (sender, args) =>
-                        Console.WriteLine("Redis连接已恢复");
-
-                    Console.WriteLine("Redis连接成功");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Redis初始化失败: {ex.Message}");
-                    throw;
+                        // 可选：注册连接断开事件，便于监控
+                        _redis.ConnectionFailed += (sender, e) =>
+                        {
+                            Console.WriteLine($"Redis连接失败: {e.Exception}");
+                        };
+                    }
                 }
             }
+            return _redis;
+        }
 
-            // 获取数据库（Redis默认有16个数据库，索引从0开始）
-            public static IDatabase GetDatabase(int dbIndex = 0)
+        // 获取数据库（Redis默认有16个数据库，索引从0开始）
+        public static IDatabase GetDatabase(int dbIndex = 0)
             {
-                InitializeRedis();
+               
                 if (_redis == null)
                     throw new InvalidOperationException("请先初始化Redis连接");
 
-                return _redis.GetDatabase(dbIndex);
-            }
+          return  GetConnection().GetDatabase(dbIndex);
+        }
             /// <summary>
             /// 统一Redis操作方法
             /// </summary>
