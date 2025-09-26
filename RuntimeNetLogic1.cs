@@ -31,6 +31,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using TestProject1;
+using TestProject1.Helper;
 using TestProject1.Model;
 using UAManagedCore;
 using static NPOI.HSSF.Util.HSSFColor;

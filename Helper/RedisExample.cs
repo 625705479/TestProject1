@@ -7,10 +7,13 @@ using System.Text;
 using System.Threading.Tasks;
 using static SQLite.SQLite3;
 
-namespace TestProject1
+namespace TestProject1.Helper
 {
 
-    public  class  RedisExample
+    /// <summary>
+    /// Redis帮助类
+    /// </summary>
+    public class  RedisExample
     {
         public RedisExample() { }
      // 推荐使用单例模式管理ConnectionMultiplexer

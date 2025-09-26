@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestProject1
+namespace TestProject1.Model
 {
     /// <summary>
     /// 告警信息实体类

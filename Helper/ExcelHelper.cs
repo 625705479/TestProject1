@@ -13,8 +13,11 @@ using System.Threading.Tasks;
 using System.Web;
 using static SQLite.SQLite3;
 
-namespace TestProject1
+namespace TestProject1.Helper
 {
+    /// <summary>
+    /// ExcelHelper帮助类
+    /// </summary>
     public class ExcelHelper
     {
         /// <summary>
@@ -238,7 +241,7 @@ namespace TestProject1
                 string fileName1 = "新增点位.xlsx";
                 //string filePath = "E:\\generate\\新增点位.xlsx";
                 string filePath = $@"\\{remoteIp}\{driveShare}\{folderPath}\{fileName1}";
-                byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+                byte[] fileBytes = File.ReadAllBytes(filePath);
                 string fileName = Path.GetFileName(filePath);
                 string userProfilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
                 string saveFilePath = userProfilePath + "\\Downloads\\" + fileName;

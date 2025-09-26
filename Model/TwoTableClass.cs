@@ -1,5 +1,8 @@
 ﻿using TestProject1.Model;
 
+/// <summary>
+/// 关联查询的映射实体
+/// </summary>
 public class TwoTableClass
 {
     [ExcelColumnDescription("类型编码")]

@@ -4,6 +4,9 @@ using System.Text;
 
 namespace TestProject1.Model
 {
+    /// <summary>
+    /// 挡位分类表
+    /// </summary>
     [Table("grading_type")] 
     public class GradingType
     {

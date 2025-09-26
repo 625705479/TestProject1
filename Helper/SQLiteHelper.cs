@@ -20,6 +20,9 @@ using UAManagedCore;
 
 namespace TestProject1
 {
+    /// <summary>
+    /// SQLiteHelper帮助类
+    /// </summary>
     public class SQLiteHelper : IDisposable
     {
         #region 常量

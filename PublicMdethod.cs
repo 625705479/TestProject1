@@ -7,6 +7,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TestProject1.Helper;
 using UAManagedCore;
 
 namespace TestProject1
@@ -17,6 +18,7 @@ namespace TestProject1
     /// 
     public class PublicMdethod
     {
+        //定义一个通用的data
         private static readonly DataTable data = new DataTable();
         //定义一个字典 用来存储变量的名称和值
         private static Dictionary<string, object> variables = new Dictionary<string, object>();
@@ -37,6 +39,10 @@ namespace TestProject1
             SetEnumeration(data);
             Object1[0].FindVariable("水果").Value = "123";
         }
+        /// <summary>
+        /// 给枚举赋值
+        /// </summary>
+        /// <param name="dt"></param>
 
         public static void SetEnumeration(DataTable dt)
         {
@@ -198,7 +204,9 @@ namespace TestProject1
                 await Task.WhenAll(batch);
             }
         }
-
+        /// <summary>
+        /// 连接PLC 
+        /// </summary>
         public static void ConnectToPlc()
         {
 

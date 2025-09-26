@@ -5,6 +5,9 @@ using System.Text;
 
 namespace TestProject1.Model
 {
+    /// <summary>
+    /// 挡位分类关联表
+    /// </summary>
     [Table("grading_type_correspond")] 
     public class GradingTypeCorrespond
     {

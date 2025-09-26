@@ -5,6 +5,9 @@ using System.Text;
 
 namespace TestProject1.Model
 {
+    /// <summary>
+    /// 挡位信息表
+    /// </summary>
     [Table("grading_detail")] 
     public class GradingDetail
     {
