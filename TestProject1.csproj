@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -18,16 +18,14 @@
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="EPPlus" Version="8.2.0"/>
-    <PackageReference Include="Microsoft.AspNetCore.SystemWebAdapters" Version="2.0.0"/>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4"/>
-    <PackageReference Include="NPOI" Version="2.7.4"/>
-    <PackageReference Include="S7netplus" Version="0.20.0"/>
-    <PackageReference Include="Serilog" Version="4.3.0"/>
-    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0"/>
-    <PackageReference Include="sqlite-net-pcl" Version="1.10.196-beta"/>
-    <PackageReference Include="StackExchange.Redis" Version="2.9.17"/>
-    <PackageReference Include="System.Data.SQLite" Version="2.0.2"/>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="NPOI" Version="2.7.4" />
+    <PackageReference Include="S7netplus" Version="0.20.0" />
+    <PackageReference Include="Serilog" Version="4.3.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.10.196-beta" />
+    <PackageReference Include="StackExchange.Redis" Version="2.9.17" />
+    <PackageReference Include="System.Data.SQLite" Version="2.0.2" />
   </ItemGroup>
-  <Import Project="TestProject1.references"/>
+  <Import Project="TestProject1.references" />
 </Project>

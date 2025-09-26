@@ -41,7 +41,7 @@ namespace TestProject1
                     if (_redis == null || !_redis.IsConnected)
                     {
                         // 连接字符串建议配置在外部（如appsettings.json）
-                        var connectionString = "localhost:6379,password=xxx,abortConnect=false";
+                        var connectionString = "localhost:6379";
                         _redis = ConnectionMultiplexer.Connect(connectionString);
 
                         // 可选：注册连接断开事件，便于监控

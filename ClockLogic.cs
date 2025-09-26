@@ -32,7 +32,7 @@ public class ClockLogic : BaseNetLogic
 		periodicTask.Dispose();
 		periodicTask = null;
 	}
-    private static  int number ;
+    //private static  int number ;
 	private void UpdateTime()
 	{
 		LogicObject.GetVariable("Time").Value = DateTime.Now;

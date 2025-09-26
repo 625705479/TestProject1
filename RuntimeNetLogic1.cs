@@ -89,16 +89,19 @@ public class RuntimeNetLogic1 : BaseNetLogic
         string formattedTime = System.DateTime.Now.ToString("[HH:mm:ss.fff]");
         _ = PublicMdethod.ReadRedis();
 
-        ////将这个result转成string数组
-        //string[] resultArray = new string[result.Count];
-        //for (int i = 0; i < result.Count; i++)
-        //{
-        //    resultArray[i] = result[i].id + ", " + result[i].name + " ," + result[i].code+ ", " + result[i].grading_position +","+ result[i].created_time;
-        //}
+    
+    ////将这个result转成string数组
+    //string[] resultArray = new string[result.Count];
+    //for (int i = 0; i < result.Count; i++)
+    //{
+    //    resultArray[i] = result[i].id + ", " + result[i].name + " ," + result[i].code+ ", " + result[i].grading_position +","+ result[i].created_time;
+    //}
 
-        //RedisExample.ListOperations("message", resultArray);
+    //RedisExample.ListOperations("message", resultArray);
 
-    }
+
+
+}
     /// <summary>
     /// 下载文件功能
     /// </summary>
@@ -106,9 +109,10 @@ public class RuntimeNetLogic1 : BaseNetLogic
     public static void SaveFile()
     {
     bool isSuccess  =ExcelHelper.FileDownExcel();
+
     }
 
-
+   
 
 
 

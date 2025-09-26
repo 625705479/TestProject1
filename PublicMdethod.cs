@@ -138,11 +138,13 @@ namespace TestProject1
             //    string cachedJson = db.StringGet("product:1");
             //    var cachedProduct = JsonConvert.DeserializeObject<Product>(cachedJson);
             //    var productname = cachedProduct.name;
+     
+
             // 1. 初始化连接（确保只初始化一次）
             RedisExample.GetConnection();
 
             // 2. 统一配置
-            int dbIndex = 1;
+            int dbIndex = 0;
             TimeSpan expiry = TimeSpan.FromMinutes(15);
             int maxParallelism = 4; // 控制并行操作数量
 
