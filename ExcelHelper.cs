@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using static SQLite.SQLite3;
 
 namespace TestProject1
 {
@@ -223,15 +224,12 @@ namespace TestProject1
 
             return columnMappings;
         }
-        
-       
-
 
         /// <summary>
-        /// 下载Excel文件
+        /// 下载文件
         /// </summary>
         /// <returns>文件结果</returns>
-        public static FileContent FileDownExcel()
+        public static bool FileDownExcel()
         {
             try
             {
@@ -239,45 +237,37 @@ namespace TestProject1
                 string remoteIp = "127.0.0.1"; // 远程服务器IP
                 string driveShare = "E$";
                 string folderPath = "generate"; // 远程服务器上共享的文件夹名
-                string fileName1 = "1.html";
+                string fileName1 = "新增点位.xlsx";
                 //string filePath = "E:\\generate\\新增点位.xlsx";
                 string filePath = $@"\\{remoteIp}\{driveShare}\{folderPath}\{fileName1}";
                 byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
                 string fileName = Path.GetFileName(filePath);
-
-                return FileInfos(fileBytes, "application/vnd.ms-excel", fileName);
+                string userProfilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                string saveFilePath = userProfilePath + "\\Downloads\\" + fileName;
+                //通过io文件流保存到本地
+                using (var fileStream = new FileStream(
+                  path: saveFilePath,
+                  mode: FileMode.Create, // 不存在则创建，存在则覆盖
+                  access: FileAccess.Write,
+                  share: FileShare.None)) // 写入时禁止其他程序占用
+                {
+                    // 将FileContent中的字节流写入本地文件
+                    fileStream.Write(fileBytes, 0, fileBytes.Length);
+                    // 强制刷新缓冲区，确保数据完全写入（大文件建议加）
+                    fileStream.Flush();
+                }
+                return true;
             }
             catch (Exception ex)
             {
                 Console.Write($"下载失败：{ex.Message}");
-                return null;
+                return false;
+         
             }
         }
-
-        private static FileContent FileInfos(byte[] fileContents, string contentType, string fileDownloadName)
-        {
-            return new FileContent(fileContents, contentType)
-            {
-                FileDownloadName = fileDownloadName
-            
-            };
-        }
+  
     }
 
-    public class FileContent
-    {
-
-        public string FileDownloadName { get; internal set; }
-        public byte[] fileContents { get; internal set; }
-        public string contentType { get; internal set; }
-        public FileContent(byte[] fileContents, string contentType)
-        {
-            this.fileContents = fileContents;
-            this.contentType = contentType;
-        }
-
-
-    }
 
     /// <summary>
     /// 用于标记属性中文描述的特性
