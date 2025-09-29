@@ -1,5 +1,10 @@
-﻿using System;
+﻿using NPOI.HPSF;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -21,10 +26,10 @@ namespace TestProject1
         public static void CreateThingXml()
         {
             // 配置参数（根据RemoteThing实际情况调整路径）
-            string originalXmlPath = @"E:\generate\generatexml\Things_TS.Module.TDTWireBoxWeldingMachineM1001.Alarm.Thing.xml"; // 原始RemoteThing.xml路径
+            string originalXmlPath = @"E:\generate\generatexml\Things_TS.Module.TDTLAMINATEDREFLUXLINEM1001.Alarm.Thing.xml"; // 原始RemoteThing.xml路径
             string outputDirectory = @"E:\generate\generatexml\create_thing"; // 输出目录
             string originalNumber = "1001"; // 原始编号
-            string[] targetNumbers = { "1002", "1003","1004","1005", "1006", "1007", "1008", "1009", "1010" }; // 目标编号
+            string[] targetNumbers = { "1002", "1003","1004","1005", "1006", "1007", "1008", "1009", "1010", "1011", "1012", "1013", "1014", "1015" }; // 目标编号
             string moduleName = originalXmlPath.Split('.')[2];
             // 使用正则表达式替换所有数字字符为空
             string devcidata = Regex.Replace(moduleName, @"\d", string.Empty);
@@ -130,10 +135,10 @@ namespace TestProject1
         public static void CreateRemoteThingXml()
         {
             // 配置参数（根据RemoteThing实际情况调整路径）
-            string originalXmlPath = @"E:\generate\generatexml\Things_TS.Module.TDTWireBoxWeldingMachineM1001.Alarm.RemoteThing.xml"; // 原始RemoteThing.xml路径
+            string originalXmlPath = @"E:\generate\generatexml\Things_TS.Module.TDTLAMINATEDREFLUXLINEM1001.Alarm.RemoteThing.xml"; // 原始RemoteThing.xml路径
             string outputDirectory = @"E:\generate\generatexml\create_remote_thing"; // 输出目录
             string originalNumber = "1001"; // 原始编号
-            string[] targetNumbers = { "1002", "1003","1004", "1005","1006", "1007", "1008", "1009", "1010" }; // 目标编号
+            string[] targetNumbers = { "1002", "1003","1004", "1005","1006", "1007", "1008", "1009", "1010" ,"1011","1012","1013","1014","1015","2001"}; // 目标编号
             //提取出TDTLABELLERM这部分去掉1001
     
             string moduleName = originalXmlPath.Split('.')[2];
@@ -237,6 +242,157 @@ namespace TestProject1
                         attribute.Value = attribute.Value.Replace(oldVal3, newVal3);
                 }
             }
+        }
+        /// <summary>
+        /// 绑定点位sourceName每次都要更改（）
+        /// </summary>
+
+        public static void PropertyBindServices()
+        {
+            try
+            {
+                // 1. 配置文件路径
+                string xmlFilePath = @"E:\generate\generatexml\BindServices\Things_TS.Module.TDTLAMINATEDREFLUXLINEM2001.Alarm.Thing.xml";
+                string excelFilePath = @"E:\generate\新增点位.xlsx"; // 支持.xls和.xlsx
+                int nameColumnIndex = 0; // NPOI列索引从0开始（A列=0，B列=1...）
+                int startRow = 1; // 数据开始行（0-based，跳过表头行）
+                string targetPart = ExtractTargetPart(xmlFilePath);
+
+                // 2. 读取Excel中的name列表
+                List<string> names = ReadNamesFromExcel(excelFilePath, nameColumnIndex, startRow);
+                if (names.Count == 0)
+                {
+                    Console.WriteLine("未从Excel中读取到任何name值");
+                    return;
+                }
+
+                // 3. 加载XML文件（与之前逻辑一致）
+                XDocument doc = XDocument.Load(xmlFilePath);
+
+                // 4. 定位RemotePropertyBindings节点（根据提供的XML，该节点已存在）
+                var remotePropertyBindings = doc.Descendants("PropertyBindings").FirstOrDefault();
+                if (remotePropertyBindings == null)
+                {
+                    Console.WriteLine("未找到RemotePropertyBindings节点");
+                    return;
+                }
+
+                // 5. 批量添加PropertyBinding元素（与之前逻辑一致）
+                foreach (string name in names)
+                {
+                    // 去重检查
+                    if (remotePropertyBindings.Elements("PropertyBinding")
+                        .Any(b => b.Attribute("name")?.Value == name))
+                    {
+                        Console.WriteLine($"已存在name为[{name}]的绑定，跳过");
+                        continue;
+                    }
+                
+                    // 构造sourceName和sourceThingName（根据XML中Thing的name调整）
+                    string sourceName = $"TDT_LAMINATED_REFLUX_LINE_M2001_M2001_PLC_{name}";//每次都要更改
+                    string sourceThingName = targetPart+"RemoteThing";
+
+                    // 创建并添加元素
+                    var binding = new XElement("PropertyBinding",
+                        new XAttribute("name", name),
+                        new XAttribute("sourceName", sourceName),
+                        new XAttribute("sourceThingName", sourceThingName)
+                    );
+                    remotePropertyBindings.Add(binding);
+                    Console.WriteLine($"已添加name为[{name}]的绑定");
+                }
+
+                // 6. 保存XML文件
+                doc.Save(xmlFilePath);
+                Console.WriteLine("所有绑定添加完成");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"操作失败：{ex.Message}");
+            }
+
+        }
+        /// <summary>
+        /// 从Excel读取指定列的name值
+        /// </summary>
+        static List<string> ReadNamesFromExcel(string filePath, int columnIndex, int startRow)
+        {
+            var names = new List<string>();
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException("Excel文件不存在", filePath);
+
+            // 根据文件扩展名创建对应的Workbook
+            IWorkbook workbook = null;
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                if (filePath.EndsWith(".xls", StringComparison.OrdinalIgnoreCase))
+                    workbook = new HSSFWorkbook(stream); // .xls格式
+                else if (filePath.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase))
+                    workbook = new XSSFWorkbook(stream); // .xlsx格式
+                else
+                    throw new Exception("不支持的Excel格式（仅支持.xls和.xlsx）");
+            }
+
+            // 获取第一个工作表
+            ISheet sheet = workbook.GetSheetAt(0);
+            if (sheet == null)
+                throw new Exception("Excel中未找到工作表");
+
+            // 遍历行（从startRow到最后一行）
+            int lastRowNum = sheet.LastRowNum;
+            for (int rowNum = startRow; rowNum <= lastRowNum; rowNum++)
+            {
+                IRow row = sheet.GetRow(rowNum);
+                if (row == null) continue; // 跳过空行
+
+                // 获取指定列的单元格
+                ICell cell = row.GetCell(columnIndex);
+                if (cell == null) continue; // 跳过空单元格
+
+                // 统一转换为字符串（处理不同单元格类型）
+                string name = GetCellValue(cell).Trim();
+                if (!string.IsNullOrEmpty(name))
+                    names.Add(name);
+            }
+
+            workbook.Close(); // 释放资源
+            return names;
+        }
+        /// <summary>
+        /// 获取单元格的文本值（兼容不同数据类型）
+        /// </summary>
+        static string GetCellValue(ICell cell)
+        {
+            if (cell == null) return string.Empty;
+
+            return cell.CellType switch
+            {
+                CellType.String => cell.StringCellValue,
+                CellType.Numeric =>
+                    DateUtil.IsCellDateFormatted(cell) ? cell.DateCellValue.ToString() : cell.NumericCellValue.ToString(),
+                CellType.Boolean => cell.BooleanCellValue.ToString(),
+                CellType.Formula => cell.CellFormula, // 公式单元格直接取公式（或可计算结果）
+                _ => string.Empty
+            };
+        }
+        static string ExtractTargetPart(string filePath)
+        {
+            // 1. 获取文件名（含扩展名）
+            string fileName = Path.GetFileName(filePath);
+            // 2. 移除扩展名（.xml）
+            string fileNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+            // 此时 fileNameWithoutExt 为 "Things_TS.Module.TDTLAMINATEDREFLUXLINEM2001.Alarm.Thing"
+
+            // 3. 移除开头的 "Things_"
+            string afterThings = fileNameWithoutExt.Replace("Things_", string.Empty);
+            // 此时 afterThings 为 "TS.Module.TDTLAMINATEDREFLUXLINEM2001.Alarm.Thing"
+
+            // 4. 移除结尾的 ".Thing"
+            string beforeThing = afterThings.Replace(".Thing", string.Empty);
+            // 此时 beforeThing 为 "TS.Module.TDTLAMINATEDREFLUXLINEM2001.Alarm"
+
+            // 5. 拼接末尾的点
+            return beforeThing + ".";
         }
     }
 }

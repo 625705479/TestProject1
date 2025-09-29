@@ -27,15 +27,16 @@ namespace TestProject1
         /// </summary>
         public static void addVariables()
         {
+            string formattedTime = System.DateTime.Now.ToString("[HH:mm:ss.fff]");
 
             var Object1 = Project.Current.GetObject("Model/Object1").Children.ToList();
             data.Columns.Add("name");
             data.Columns.Add("code");
-            data.Rows.Add("水果", "123");
-            data.Rows.Add("蔬菜", "456");
-            data.Rows.Add("肉类", "789");
-            data.Rows.Add("水产", "10111");
-            data.Rows.Add("农产品", "12131");
+            data.Rows.Add(formattedTime+":水果", "123");
+            data.Rows.Add(formattedTime + ":蔬菜", "456");
+            data.Rows.Add(formattedTime + ":肉类", "789");
+            data.Rows.Add(formattedTime+":水产", "10111");
+            data.Rows.Add(formattedTime+":农产品", "12131");
             SetEnumeration(data);
             Object1[0].FindVariable("水果").Value = "123";
         }

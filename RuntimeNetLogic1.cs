@@ -53,7 +53,7 @@ public class RuntimeNetLogic1 : BaseNetLogic
        PublicMdethod.addVariables();
 
     }
-
+    
     public override void Stop()
     {
         // Insert code to be executed when the user-defined logic is stopped
@@ -62,8 +62,9 @@ public class RuntimeNetLogic1 : BaseNetLogic
     public static void UpdateXmlAndCreateXML()
     {
         string excelPath = @"E:\generate\新增点位.xlsx";//excel 文件路径
-        string xmlPath = @"E:\generate\generatexml\ThingTemplates_TS.Module.LAMINTION.Alarm.ThingTemplates.xml";//要修改的xml文件路径
+        string xmlPath = @"E:\generate\generatexml\ThingTemplates_TS.Module.LAMINATEDREFLUXLINEM.Alarm.ThingTemplates.xml";//要修改的xml文件路径
         ExcelToXmlGenerator.GenerateXmlFromExcel(excelPath, xmlPath);
+        CreateXml.PropertyBindServices();
         ///批量生成thing xml文件和remoteing thing xml文件
         CreateXml.CreateThingXml();
         CreateXml.CreateRemoteThingXml();
