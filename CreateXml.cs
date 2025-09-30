@@ -254,8 +254,8 @@ namespace TestProject1
                 // 1. 配置文件路径
                 string xmlFilePath = @"E:\generate\generatexml\BindServices\Things_TS.Module.TDTLAMINATEDREFLUXLINEM2001.Alarm.Thing.xml";
                 string excelFilePath = @"E:\generate\新增点位.xlsx"; // 支持.xls和.xlsx
-                int nameColumnIndex = 0; // NPOI列索引从0开始（A列=0，B列=1...）
-                int startRow = 1; // 数据开始行（0-based，跳过表头行）
+                int nameColumnIndex = 0; // NPOI列索引从0开始（A列=0，B列=1...）0表示第一列（首列）
+                int startRow = 1; // 数据开始行（0-based，跳过表头行）（表示第二行跳过表头）
                 string targetPart = ExtractTargetPart(xmlFilePath);
 
                 // 2. 读取Excel中的name列表
@@ -292,7 +292,7 @@ namespace TestProject1
                     string sourceName = $"TDT_LAMINATED_REFLUX_LINE_M2001_M2001_PLC_{name}";//每次都要更改
                     string sourceThingName = targetPart+"RemoteThing";
 
-                    // 创建并添加元素
+                    // 创建并添加元素绑定点位
                     var binding = new XElement("PropertyBinding",
                         new XAttribute("name", name),
                         new XAttribute("sourceName", sourceName),
