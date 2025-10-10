@@ -1,17 +1,11 @@
 ﻿using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using static SQLite.SQLite3;
 
 namespace TestProject1.Helper
 {
@@ -263,10 +257,10 @@ namespace TestProject1.Helper
             {
                 Console.Write($"下载失败：{ex.Message}");
                 return false;
-         
+
             }
         }
-  
+
     }
 
 
@@ -304,4 +298,4 @@ namespace TestProject1.Helper
         public bool IsActive { get; set; }
     }
 
-    }
+}

@@ -1,46 +1,10 @@
 #region Using directives
-using FTOptix.Core;
-using FTOptix.CoreBase;
 using FTOptix.HMIProject;
-using FTOptix.NativeUI;
 using FTOptix.NetLogic;
-using FTOptix.Retentivity;
-using FTOptix.SQLiteStore;
-using FTOptix.Store;
-using FTOptix.UI;
-using Newtonsoft.Json;
-using NPOI.POIFS.Crypt;
-using NPOI.SS.Formula.Functions;
-using NPOI.Util;
-using NPOI.XSSF.Streaming.Values;
-using S7.Net;
-using S7.Net.Types;
-using Serilog;
-using SixLabors.Fonts;
-using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Timers;
 using TestProject1;
 using TestProject1.Helper;
 using TestProject1.Model;
 using UAManagedCore;
-using static NPOI.HSSF.Util.HSSFColor;
-using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
-using static TestProject1.SQLiteHelper;
-using DateTime = System.DateTime;
-using ILogger = Serilog.ILogger;
-using Match = System.Text.RegularExpressions.Match;
-using OpcUa = UAManagedCore.OpcUa;
 #endregion
 
 public class RuntimeNetLogic1 : BaseNetLogic
@@ -50,10 +14,10 @@ public class RuntimeNetLogic1 : BaseNetLogic
 
     public override void Start()
     {
-       PublicMdethod.addVariables();
+        PublicMdethod.addVariables();
 
     }
-    
+
     public override void Stop()
     {
         // Insert code to be executed when the user-defined logic is stopped
@@ -91,30 +55,30 @@ public class RuntimeNetLogic1 : BaseNetLogic
         string formattedTime = System.DateTime.Now.ToString("[HH:mm:ss.fff]");
         _ = PublicMdethod.ReadRedis();
 
-    
-    ////将这个result转成string数组
-    //string[] resultArray = new string[result.Count];
-    //for (int i = 0; i < result.Count; i++)
-    //{
-    //    resultArray[i] = result[i].id + ", " + result[i].name + " ," + result[i].code+ ", " + result[i].grading_position +","+ result[i].created_time;
-    //}
 
-    //RedisExample.ListOperations("message", resultArray);
+        ////将这个result转成string数组
+        //string[] resultArray = new string[result.Count];
+        //for (int i = 0; i < result.Count; i++)
+        //{
+        //    resultArray[i] = result[i].id + ", " + result[i].name + " ," + result[i].code+ ", " + result[i].grading_position +","+ result[i].created_time;
+        //}
+
+        //RedisExample.ListOperations("message", resultArray);
 
 
 
-}
+    }
     /// <summary>
     /// 下载文件功能
     /// </summary>
     [ExportMethod]
     public static void SaveFile()
     {
-    bool isSuccess  =ExcelHelper.FileDownExcel();
+        bool isSuccess = ExcelHelper.FileDownExcel();
 
     }
 
-   
+
 
 
 

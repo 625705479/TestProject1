@@ -1,23 +1,20 @@
-﻿using System;
-using System.Text;
-
- using SQLite;
+﻿using SQLite;
 
 namespace TestProject1.Model
 {
     /// <summary>
     /// 挡位分类关联表
     /// </summary>
-    [Table("grading_type_correspond")] 
+    [Table("grading_type_correspond")]
     public class GradingTypeCorrespond
     {
-[ExcelColumnDescription("类型编码")]     
+        [ExcelColumnDescription("类型编码")]
         /// <summary>
         /// code类型编码
         /// </summary>
         public string code { get; set; }
 
-[ExcelColumnDescription("分档档位主键")]     
+        [ExcelColumnDescription("分档档位主键")]
         /// <summary>
         /// grading_position分档档位主键
         /// </summary>
@@ -28,7 +25,7 @@ namespace TestProject1.Model
         /// </summary>
         public long id { get; set; }
 
-[ExcelColumnDescription("创建时间")]     
+        [ExcelColumnDescription("创建时间")]
         /// <summary>
         /// created_time创建时间
         /// </summary>

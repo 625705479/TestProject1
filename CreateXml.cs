@@ -1,15 +1,12 @@
-﻿using NPOI.HPSF;
-using NPOI.HSSF.UserModel;
+﻿using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -29,7 +26,7 @@ namespace TestProject1
             string originalXmlPath = @"E:\generate\generatexml\Things_TS.Module.TDTLAMINATEDREFLUXLINEM1001.Alarm.Thing.xml"; // 原始RemoteThing.xml路径
             string outputDirectory = @"E:\generate\generatexml\create_thing"; // 输出目录
             string originalNumber = "1001"; // 原始编号
-            string[] targetNumbers = { "1002", "1003","1004","1005", "1006", "1007", "1008", "1009", "1010", "1011", "1012", "1013", "1014", "1015" }; // 目标编号
+            string[] targetNumbers = { "1002", "1003", "1004", "1005", "1006", "1007", "1008", "1009", "1010", "1011", "1012", "1013", "1014", "1015" }; // 目标编号
             string moduleName = originalXmlPath.Split('.')[2];
             // 使用正则表达式替换所有数字字符为空
             string devcidata = Regex.Replace(moduleName, @"\d", string.Empty);
@@ -129,21 +126,21 @@ namespace TestProject1
             }
         }
 
-       /// <summary>
-       /// 批量生成RemoteThing.xml
-       /// </summary>
+        /// <summary>
+        /// 批量生成RemoteThing.xml
+        /// </summary>
         public static void CreateRemoteThingXml()
         {
             // 配置参数（根据RemoteThing实际情况调整路径）
             string originalXmlPath = @"E:\generate\generatexml\Things_TS.Module.TDTLAMINATEDREFLUXLINEM1001.Alarm.RemoteThing.xml"; // 原始RemoteThing.xml路径
             string outputDirectory = @"E:\generate\generatexml\create_remote_thing"; // 输出目录
             string originalNumber = "1001"; // 原始编号
-            string[] targetNumbers = { "1002", "1003","1004", "1005","1006", "1007", "1008", "1009", "1010" ,"1011","1012","1013","1014","1015","2001"}; // 目标编号
-            //提取出TDTLABELLERM这部分去掉1001
-    
+            string[] targetNumbers = { "1002", "1003", "1004", "1005", "1006", "1007", "1008", "1009", "1010", "1011", "1012", "1013", "1014", "1015", "2001" }; // 目标编号
+                                                                                                                                                                 //提取出TDTLABELLERM这部分去掉1001
+
             string moduleName = originalXmlPath.Split('.')[2];
             // 使用正则表达式替换所有数字字符为空
-           string devcidata=    Regex.Replace(moduleName, @"\d", string.Empty);
+            string devcidata = Regex.Replace(moduleName, @"\d", string.Empty);
             try
             {
                 // 确保输出目录存在
@@ -213,7 +210,7 @@ namespace TestProject1
                 Console.WriteLine($"处理RemoteThing时发生错误: {ex.Message}");
             }
 
-           
+
         }
 
         /// <summary>
@@ -287,10 +284,10 @@ namespace TestProject1
                         Console.WriteLine($"已存在name为[{name}]的绑定，跳过");
                         continue;
                     }
-                
+
                     // 构造sourceName和sourceThingName（根据XML中Thing的name调整）
                     string sourceName = $"TDT_LAMINATED_REFLUX_LINE_M2001_M2001_PLC_{name}";//每次都要更改
-                    string sourceThingName = targetPart+"RemoteThing";
+                    string sourceThingName = targetPart + "RemoteThing";
 
                     // 创建并添加元素绑定点位
                     var binding = new XElement("PropertyBinding",

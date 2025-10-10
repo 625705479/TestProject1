@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TestProject1.Helper;
 using UAManagedCore;
@@ -32,11 +31,11 @@ namespace TestProject1
             var Object1 = Project.Current.GetObject("Model/Object1").Children.ToList();
             data.Columns.Add("name");
             data.Columns.Add("code");
-            data.Rows.Add(formattedTime+":水果", "123");
+            data.Rows.Add(formattedTime + ":水果", "123");
             data.Rows.Add(formattedTime + ":蔬菜", "456");
             data.Rows.Add(formattedTime + ":肉类", "789");
-            data.Rows.Add(formattedTime+":水产", "10111");
-            data.Rows.Add(formattedTime+":农产品", "12131");
+            data.Rows.Add(formattedTime + ":水产", "10111");
+            data.Rows.Add(formattedTime + ":农产品", "12131");
             SetEnumeration(data);
             Object1[0].FindVariable("水果").Value = "123";
         }
@@ -145,7 +144,7 @@ namespace TestProject1
             //    string cachedJson = db.StringGet("product:1");
             //    var cachedProduct = JsonConvert.DeserializeObject<Product>(cachedJson);
             //    var productname = cachedProduct.name;
-     
+
 
             // 1. 初始化连接（确保只初始化一次）
             RedisExample.GetConnection();

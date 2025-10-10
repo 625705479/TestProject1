@@ -4,18 +4,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
-using System.Data.Common;
 using System.Data.SQLite;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 using UAManagedCore;
 
 namespace TestProject1
@@ -406,7 +402,7 @@ namespace TestProject1
                 Expression<Func<T, TJoin, bool>> onExpression,
                 string alias = "t2") where TJoin : new()
             {
-               
+
                 _joinInfos.Add(new JoinInfo
                 {
                     JoinEntityType = typeof(TJoin),
@@ -416,20 +412,20 @@ namespace TestProject1
                 });
                 return this;
             }
-        /// <summary>
-        /// 新增：连表查询结果投影（支持多表字段选择）
-        /// </summary>
-        /// <typeparam name="T1"></typeparam>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="selectExpression"></param>
-        /// <returns></returns>
-    public SqliteQueryable<T> Select<T1, TResult>(
-        Expression<Func<T, T1, TResult>> selectExpression)
-    {
-        // 注：object 占位，实际会根据连表数量动态匹配
-        _selectExpression = selectExpression;
-        return this;
-    }
+            /// <summary>
+            /// 新增：连表查询结果投影（支持多表字段选择）
+            /// </summary>
+            /// <typeparam name="T1"></typeparam>
+            /// <typeparam name="TResult"></typeparam>
+            /// <param name="selectExpression"></param>
+            /// <returns></returns>
+            public SqliteQueryable<T> Select<T1, TResult>(
+                Expression<Func<T, T1, TResult>> selectExpression)
+            {
+                // 注：object 占位，实际会根据连表数量动态匹配
+                _selectExpression = selectExpression;
+                return this;
+            }
             /// <summary>
             /// 改造 ToList 方法，支持连表 SQL 生成
             /// </summary>
@@ -469,7 +465,7 @@ namespace TestProject1
                     var whereClause = ExpressionToSqlConverter.ConvertWhere(_whereExpression, parameters, _mainAlias);
                     sql += $" WHERE {whereClause}";
                 }
-       
+
 
                 // 处理排序（支持连表字段排序）
                 if (!string.IsNullOrEmpty(_orderBy))
@@ -477,7 +473,7 @@ namespace TestProject1
                     sql += $" ORDER BY {_orderBy} {(_isDescending ? "DESC" : "ASC")}";
                 }
                 // 处理分组
-    
+
 
                 // 5. 执行查询（使用新的结果映射方法）
                 return ExecuteJoinQuery<TResult>(sql, parameters.ToArray());
@@ -604,7 +600,7 @@ namespace TestProject1
 
                         columns.Add($"{alias}.{memberExpr.Member.Name} AS {binding.Member.Name}");
                     }
-         
+
                     return string.Join(", ", columns);
                 }
                 // 提取公共方法：生成所有表的*字段SQL
@@ -698,13 +694,13 @@ namespace TestProject1
                 }
             }
         }
-            #endregion
-           #region 数据库操作
-            /// <summary>
-            /// 创建数据库
-            /// </summary>
-            /// <param name="binPath"></param>
-            public static void CreateNewDatabase(string binPath)
+        #endregion
+        #region 数据库操作
+        /// <summary>
+        /// 创建数据库
+        /// </summary>
+        /// <param name="binPath"></param>
+        public static void CreateNewDatabase(string binPath)
         {
             try
             {
@@ -837,7 +833,7 @@ namespace TestProject1
         /// <param name="tables"></param>
         /// <param name="namespaceName"></param>
         /// <param name="outputDirectory"></param>
-        public  void GenerateEntitiesFromDataTables(
+        public void GenerateEntitiesFromDataTables(
           Dictionary<string, DataTable> tables,
           string namespaceName,
           string outputDirectory)
@@ -1219,7 +1215,7 @@ namespace TestProject1
 
                     using (var transaction = connection.BeginTransaction())
                     {
-                        Type entityType= typeof(T);
+                        Type entityType = typeof(T);
                         string tableName = GetTableName(entityType);// 表名（可结合TableAttribute优化）
 
                         // 获取所有公共实例属性
@@ -1517,7 +1513,7 @@ namespace TestProject1
         /// <returns></returns>
         public static string GetTableName(Type entityType)
         {
-         
+
 
             // 1. 明确获取 SQLite.TableAttribute 类型的特性
             // 2. 转换时也明确指定 SQLite.TableAttribute，避免命名空间冲突
