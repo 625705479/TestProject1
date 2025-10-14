@@ -123,6 +123,57 @@ namespace TestProject1
         }
 
 
+        public static  void SetVariable()
+        {
+            var Object1 = Project.Current.GetObject("Model/Object1").Children.ToList();
+            //添加每十秒往这个变量赋值+2
+            Object1[0].FindVariable("水果").Value = "123";
+            var timer = new System.Timers.Timer(5000);
+            // 定时器触发事件（每10秒执行一次）
+            timer.Elapsed += (sender, e) =>
+            {
+                // 假设要增加的是名为"数量"的数值变量
+                var targetVariable = Object1[0].FindVariable("水果");
+
+                if (targetVariable != null)
+                {
+                    try
+                    {
+                        // 将当前值转换为整数，加2后重新赋值
+                        int currentValue = int.Parse(targetVariable.Value);
+                        targetVariable.Value = currentValue - 25;
+                    }
+                    catch (Exception ex)
+                    {
+                        // 处理可能的转换错误
+                        Console.WriteLine($"更新变量时出错: {ex.Message}");
+                    }
+                }
+            };
+            // 第二个定时器：每2秒减少23
+            var subtractTimer = new System.Timers.Timer(2000); // 2000毫秒 = 2秒
+            subtractTimer.Elapsed += (sender, e) =>
+            {
+                var targetVariable = Object1[0].FindVariable("水果");
+                if (targetVariable != null)
+                {
+                    try
+                    {
+                        int currentValue = int.Parse(targetVariable.Value);
+                        targetVariable.Value = (currentValue + 40).ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"减少数值时出错: {ex.Message}");
+                    }
+                }
+            };
+
+            // 启动两个定时器
+            timer.Start();
+            subtractTimer.Start();
+        }
+
         /// <summary>
         /// 读取Redis数据
         /// </summary>

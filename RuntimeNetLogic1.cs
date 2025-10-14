@@ -15,6 +15,7 @@ public class RuntimeNetLogic1 : BaseNetLogic
     public override void Start()
     {
         PublicMdethod.addVariables();
+        PublicMdethod.SetVariable();
 
     }
 
