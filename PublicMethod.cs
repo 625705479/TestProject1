@@ -8,6 +8,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using TestProject1.Helper;
 using UAManagedCore;
+using FTOptix.AuditSigning;
+using FTOptix.Recipe;
+using FTOptix.SQLiteStore;
+using FTOptix.Store;
+using FTOptix.Alarm;
+using FTOptix.ODBCStore;
+using FTOptix.InfluxDBStoreRemote;
+using FTOptix.InfluxDBStore;
 
 namespace TestProject1
 {
@@ -15,7 +23,7 @@ namespace TestProject1
     /// This is a public class
     /// </summary>
     /// 
-    public class PublicMdethod
+    public class PublicMethod
     {
         //定义一个通用的data
         private static readonly DataTable data = new DataTable();

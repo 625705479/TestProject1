@@ -1,13 +1,26 @@
 #region Using directives
+using FTOptix.Alarm;
+using FTOptix.AuditSigning;
 using FTOptix.HMIProject;
+using FTOptix.InfluxDBStore;
+using FTOptix.InfluxDBStoreRemote;
+using FTOptix.MQTTClient;
 using FTOptix.NetLogic;
+using FTOptix.ODBCStore;
+using FTOptix.Recipe;
+using FTOptix.SQLiteStore;
+using FTOptix.Store;
+using FTOptix.UI;
+using MQTTnet;
+using NPOI.SS.Formula.Functions;
+using StackExchange.Redis;
+using System;
+using System.Linq;
 using TestProject1;
 using TestProject1.Helper;
 using TestProject1.Model;
 using UAManagedCore;
-using FTOptix.ODBCStore;
-using FTOptix.Store;
-using System.Linq;
+using static SQLite.SQLite3;
 #endregion
 
 public class RuntimeNetLogic1 : BaseNetLogic
@@ -17,8 +30,8 @@ public class RuntimeNetLogic1 : BaseNetLogic
 
     public override void Start()
     {
-        PublicMdethod.addVariables();
-        PublicMdethod.SetVariable();
+        PublicMethod.addVariables();
+        PublicMethod.SetVariable();
 
     }
 
@@ -40,7 +53,7 @@ public class RuntimeNetLogic1 : BaseNetLogic
 
 
     [ExportMethod]
-    public static void Showdata()
+    public static void Showdata(string res)
     {
         //var db = new SQLiteHelper(dbPath);
         ////var x = db.Query("datachange_log").Where(" lot_no = @p2","10111").ToList();
@@ -68,9 +81,75 @@ public class RuntimeNetLogic1 : BaseNetLogic
         //}
 
         //RedisExample.ListOperations("message", resultArray);
-        Test();
+        CheckboxTest(res);
+        OptionButtonTest();
+        var db = Project.Current.Get<InfluxDBStoreRemote>("DataStores/RemoteInfluxDBDatabase1");
+        string deleteSql = "INSERT INTO grading_record_log () VALUES (89, 'R012505260004', '2025-05-26 14:23:20.837046', 'A', '1', '1档', 1, '', 'a001', 1, 14, 'I3', 'Z', '490', 'aa', 'DJ254M1008', '1.996A', '0.99', 'TSM-490DE18M(II)', ' nameplateQRInfo', 'double', 'sideModuleNo', 14, '0000', '正常', 0);";
+        // 提取列名数组
+        string[] columnNames = new string[]
+        {
+    "id",
+    "lot_no",
+    "create_time",
+    "region",
+    "line_no",
+    "grading_position",
+    "if_ng",
+    "ng_reason",
+    "box_no",
+    "if_corner",
+    "lot_number",
+    "electric",
+    "color",
+    "grade",
+    "item",
+    "order",
+    "power",
+    "ff",
+    "product_family",
+    "nameplate_qrInfo",
+    "double_nameplate_qrInfo",
+    "side_module_no",
+    "max_num",
+    "rule_type",
+    "status",
+    "if_force_pack"
+        };
+        // 提取值到二维数组（这里是1行26列的结构，对应一条数据）
+        object[,] results = new object[1, 26];
+        results[0, 0] = 89;  // id
+        results[0, 1] = "R012505260004";  // lot_no
+        results[0, 2] = "2025-05-26 14:23:20.837046";  // create_time
+        results[0, 3] = "A";  // region
+        results[0, 4] = "1";  // line_no
+        results[0, 5] = "1档";  // grading_position
+        results[0, 6] = 1;  // if_ng
+        results[0, 7] = "";  // ng_reason
+        results[0, 8] = "a001";  // box_no
+        results[0, 9] = 1;  // if_corner
+        results[0, 10] = 14;  // lot_number
+        results[0, 11] = "I3";  // electric
+        results[0, 12] = "Z";  // color
+        results[0, 13] = "490";  // grade
+        results[0, 14] = "aa";  // item
+        results[0, 15] = "DJ254M1008";  // order
+        results[0, 16] = "1.996A";  // power
+        results[0, 17] = "0.99";  // ff
+        results[0, 18] = "TSM-490DE18M(II)";  // product_family
+        results[0, 19] = " nameplateQRInfo";  // nameplate_qrInfo
+        results[0, 20] = "double";  // double_nameplate_qrInfo
+        results[0, 21] = "sideModuleNo";  // side_module_no
+        results[0, 22] = 14;  // max_num
+        results[0, 23] = "0000";  // rule_type
+        results[0, 24] = "正常";  // status
+        results[0, 25] = 0;  // if_force_pack
+        db.Insert("grading_record_log", columnNames, results);
+        string sql = "SELECT* FROM grading_record_log ";
+        string[] columnName;
+        object[,] resul;
+        db.GetBehaviourStartedInfos();
 
-
+ 
     }
     /// <summary>
     /// 下载文件功能
@@ -81,13 +160,42 @@ public class RuntimeNetLogic1 : BaseNetLogic
         bool isSuccess = ExcelHelper.FileDownExcel();
 
     }
-
-    public static void Test()
+    /// <summary>
+    /// 复选框选中事件
+    /// </summary>
+    /// <param name="res"></param>
+    public static void CheckboxTest(string res)
     {
-      var Checkbox1 = Project.Current.GetObject("UI/MainWindow/Checkbox1");
-      var OptionButton1 = Project.Current.GetObject("UI/MainWindow/OptionButton1");
+        if (res == "1")
+        {
+            Logger.Info("复选按钮选中状态");
+        }
+        else
+        {
+            Logger.Info("复选按钮未选中状态");
+        }
     }
+    /// <summary>
+    /// 单选按钮取值
+    /// </summary>
+    public static void OptionButtonTest()
+    {
+        var result = Project.Current.GetVariable("Model/checked").Value.Value;
+        var result1 = Project.Current.GetVariable("Model/checked1").Value.Value;
+        if ((bool)result)
+        {
+            var genderText = (Project.Current.GetObject("UI/MainWindow/OptionButton1") as dynamic)
+                ?.Children[1]?.DataValue?.Value?.Value?.Text as string;
+        }
+        if((bool)result1)
+        {
+            var genderText = (Project.Current.GetObject("UI/MainWindow/OptionButton2") as dynamic)
+                ?.Children[1]?.DataValue?.Value?.Value?.Text as string;
+        }
 
+
+    }
+    
 
 
 
