@@ -16,6 +16,7 @@ using FTOptix.Alarm;
 using FTOptix.ODBCStore;
 using FTOptix.InfluxDBStoreRemote;
 using FTOptix.InfluxDBStore;
+using FTOptix.InfluxDBStoreLocal;
 
 namespace TestProject1
 {
@@ -26,13 +27,13 @@ namespace TestProject1
     public class PublicMethod
     {
         //定义一个通用的data
-        private static readonly DataTable data = new DataTable();
+        private static readonly DataTable data = new ();
         //定义一个字典 用来存储变量的名称和值
-        private static Dictionary<string, object> variables = new Dictionary<string, object>();
+        private static Dictionary<string, object> variables = new ();
         /// <summary>
         /// 添加报错变量
         /// </summary>
-        public static void addVariables()
+        public static void AddVariables()
         {
             string formattedTime = System.DateTime.Now.ToString("[HH:mm:ss.fff]");
 
@@ -284,5 +285,13 @@ namespace TestProject1
 
 
         }
+
+        public static SQLiteHelper DB()
+        {
+             string dbPath = @"E:\aa\Test.db";
+            var db = new SQLiteHelper(dbPath);
+            return db;
+
+        }
+        }
     }
-}

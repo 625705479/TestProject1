@@ -20,19 +20,24 @@ using TestProject1;
 using TestProject1.Helper;
 using TestProject1.Model;
 using UAManagedCore;
+using FTOptix.InfluxDBStoreLocal;
 using static SQLite.SQLite3;
+using System.ComponentModel.DataAnnotations;
+using S7.Net;
+using NPOI.HPSF;
+using System.Security.Cryptography;
 #endregion
 
 public class RuntimeNetLogic1 : BaseNetLogic
 {
-    private static readonly string dbPath = @"E:\aa\Test.db";
 
 
+  
     public override void Start()
     {
-        PublicMethod.addVariables();
+        PublicMethod.AddVariables();
         PublicMethod.SetVariable();
-
+        PublicMethod.DB();
     }
 
     public override void Stop()
@@ -79,13 +84,12 @@ public class RuntimeNetLogic1 : BaseNetLogic
         //{
         //    resultArray[i] = result[i].id + ", " + result[i].name + " ," + result[i].code+ ", " + result[i].grading_position +","+ result[i].created_time;
         //}
-
+        var DB=SQLiteHelper.Instance;
+       var stu= DB.ExecuteQuery("select * from datachange_log");
         //RedisExample.ListOperations("message", resultArray);
         CheckboxTest(res);
         OptionButtonTest();
-        var db = Project.Current.Get<InfluxDBStoreRemote>("DataStores/RemoteInfluxDBDatabase1");
-        string deleteSql = "INSERT INTO grading_record_log () VALUES (89, 'R012505260004', '2025-05-26 14:23:20.837046', 'A', '1', '1档', 1, '', 'a001', 1, 14, 'I3', 'Z', '490', 'aa', 'DJ254M1008', '1.996A', '0.99', 'TSM-490DE18M(II)', ' nameplateQRInfo', 'double', 'sideModuleNo', 14, '0000', '正常', 0);";
-        // 提取列名数组
+        var db = Project.Current.Get<InfluxDBStoreLocal>("DataStores/LocalInfluxDBDatabase");
         string[] columnNames = new string[]
         {
     "id",
@@ -143,13 +147,14 @@ public class RuntimeNetLogic1 : BaseNetLogic
         results[0, 23] = "0000";  // rule_type
         results[0, 24] = "正常";  // status
         results[0, 25] = 0;  // if_force_pack
+        
         db.Insert("grading_record_log", columnNames, results);
         string sql = "SELECT* FROM grading_record_log ";
         string[] columnName;
         object[,] resul;
-        db.GetBehaviourStartedInfos();
+        db.Insert("grading_record_log",columnNames,results);
+        var resultdata = db.Tables["grading_record_log"].Columns.AsQueryable(); // 按表名获取
 
- 
     }
     /// <summary>
     /// 下载文件功能
@@ -157,9 +162,10 @@ public class RuntimeNetLogic1 : BaseNetLogic
     [ExportMethod]
     public static void SaveFile()
     {
-        bool isSuccess = ExcelHelper.FileDownExcel();
+   ExcelHelper.FileDownExcel();
 
     }
+ 
     /// <summary>
     /// 复选框选中事件
     /// </summary>

@@ -28,6 +28,8 @@ namespace TestProject1
         private readonly string _connectionString;
         // 事务对象
         private SQLiteTransaction _transaction;
+        private static readonly object _lock = new object();
+        private static SQLiteHelper _instance;
         #endregion
         public SQLiteHelper(string databasePath)
         {
@@ -36,6 +38,27 @@ namespace TestProject1
             _connection.Open(); // 打开连接（事务需要保持连接打开）
 
         }
+
+        public static SQLiteHelper Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            string dbPath = @"E:\aa\Test.db";
+                            _instance = new SQLiteHelper(dbPath);
+                        }
+                    }
+                }
+                return _instance;
+            }
+        }
+
+
         /// <summary>
         /// 获取连接字符串
         /// </summary>

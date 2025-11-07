@@ -10,6 +10,7 @@ using FTOptix.Alarm;
 using FTOptix.ODBCStore;
 using FTOptix.InfluxDBStoreRemote;
 using FTOptix.InfluxDBStore;
+using FTOptix.InfluxDBStoreLocal;
 #endregion
 
 public class ClockLogic : BaseNetLogic
