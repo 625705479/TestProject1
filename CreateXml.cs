@@ -18,6 +18,9 @@ using FTOptix.ODBCStore;
 using FTOptix.InfluxDBStoreRemote;
 using FTOptix.InfluxDBStore;
 using FTOptix.InfluxDBStoreLocal;
+using FTOptix.OmronFins;
+using FTOptix.CommunicationDriver;
+using FTOptix.Modbus;
 
 namespace TestProject1
 {

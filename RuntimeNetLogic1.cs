@@ -1,44 +1,59 @@
-#region Using directives
+ï»¿#region Using directives
 using FTOptix.Alarm;
 using FTOptix.AuditSigning;
+using FTOptix.CommunicationDriver;
 using FTOptix.HMIProject;
 using FTOptix.InfluxDBStore;
+using FTOptix.InfluxDBStoreLocal;
 using FTOptix.InfluxDBStoreRemote;
+using FTOptix.Modbus;
 using FTOptix.MQTTClient;
 using FTOptix.NetLogic;
 using FTOptix.ODBCStore;
+using FTOptix.OmronFins;
 using FTOptix.Recipe;
 using FTOptix.SQLiteStore;
 using FTOptix.Store;
 using FTOptix.UI;
 using MQTTnet;
+using NPOI.HPSF;
 using NPOI.SS.Formula.Functions;
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Macs;
+using Org.BouncyCastle.Crypto.Prng;
+using Org.BouncyCastle.Tsp;
+using S7.Net;
 using StackExchange.Redis;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Security.Cryptography;
+using System.Text;
 using TestProject1;
 using TestProject1.Helper;
 using TestProject1.Model;
 using UAManagedCore;
-using FTOptix.InfluxDBStoreLocal;
 using static SQLite.SQLite3;
-using System.ComponentModel.DataAnnotations;
-using S7.Net;
-using NPOI.HPSF;
-using System.Security.Cryptography;
 #endregion
 
 public class RuntimeNetLogic1 : BaseNetLogic
 {
 
 
-  
+
     public override void Start()
     {
         PublicMethod.AddVariables();
         PublicMethod.SetVariable();
         PublicMethod.DB();
+
     }
+
+
 
     public override void Stop()
     {
@@ -47,11 +62,11 @@ public class RuntimeNetLogic1 : BaseNetLogic
     [ExportMethod]
     public static void UpdateXmlAndCreateXML()
     {
-        string excelPath = @"E:\generate\ĞÂÔöµãÎ».xlsx";//excel ÎÄ¼şÂ·¾¶
-        string xmlPath = @"E:\generate\generatexml\ThingTemplates_TS.Module.LAMINATEDREFLUXLINEM.Alarm.ThingTemplates.xml";//ÒªĞŞ¸ÄµÄxmlÎÄ¼şÂ·¾¶
+        string excelPath = @"E:\generateæ–°å¢ç‚¹ä½.xlsx";//excel ï¿½Ä¼ï¿½Â·ï¿½ï¿½
+        string xmlPath = @"E:\generate\generatexml\ThingTemplates_TS.Module.LAMINATEDREFLUXLINEM.Alarm.ThingTemplates.xml";//Òªï¿½Ş¸Äµï¿½xmlï¿½Ä¼ï¿½Â·ï¿½ï¿½
         ExcelToXmlGenerator.GenerateXmlFromExcel(excelPath, xmlPath);
         CreateXml.PropertyBindServices();
-        ///ÅúÁ¿Éú³Éthing xmlÎÄ¼şºÍremoteing thing xmlÎÄ¼ş
+        ///ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½thing xmlï¿½Ä¼ï¿½ï¿½ï¿½remoteing thing xmlï¿½Ä¼ï¿½
         CreateXml.CreateThingXml();
         CreateXml.CreateRemoteThingXml();
     }
@@ -60,104 +75,42 @@ public class RuntimeNetLogic1 : BaseNetLogic
     [ExportMethod]
     public static void Showdata(string res)
     {
+        LoadVM();
+        //æµ‹è¯•SQLite
         //var db = new SQLiteHelper(dbPath);
         ////var x = db.Query("datachange_log").Where(" lot_no = @p2","10111").ToList();
         //var multiLineText = db.Query("datachange_log").Where("Id = @po AND lot_no = @po2", 482, "10111").GetSingleObject("position_name");
         //Project.Current.GetVariable("Model/TxtVaule").Value = multiLineText.ToString();
         //var result = db.Queryable<GradingTypeCorrespond>()
-        //    // ×óÁ¬ GradingType£ºÁ¬½ÓÌõ¼ş a.code == b.code
+        //    // ï¿½ï¿½ï¿½ï¿½ GradingTypeï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ a.code == b.code
         //    .LeftJoin<GradingType>((a, b) => a.code == b.code)
-        //   // ¹Ø¼ü£ºSelect Í¶Ó°£¬½« a£¨Ö÷±í£©ºÍ b£¨Á¬±í£©µÄ×Ö¶Î¸³Öµ¸ø TwoTableClass
+        //   // ï¿½Ø¼ï¿½ï¿½ï¿½Select Í¶Ó°ï¿½ï¿½ï¿½ï¿½ aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ bï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶Î¸ï¿½Öµï¿½ï¿½ TwoTableClass
         //   .Select((GradingTypeCorrespond a, GradingType b) => new TwoTableClass { })
-        //    // ¿ÉÑ¡£ºÌí¼ÓÉ¸Ñ¡Ìõ¼ş£¨±ÈÈçÖ÷±í code ²»Îª¿Õ£©
+        //    // ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½É¸Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ code ï¿½ï¿½Îªï¿½Õ£ï¿½
         //    .Where(a => !string.IsNullOrEmpty(a.code))
-        //    // ¿ÉÑ¡£º°´Ö÷±í id ÅÅĞò
-        //    .OrderBy("t1.id") // t1 ÊÇÖ÷±íÄ¬ÈÏ±ğÃû£¬¶ÔÓ¦ GradingTypeCorrespond
+        //    // ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ id ï¿½ï¿½ï¿½ï¿½
+        //    .OrderBy("t1.id") // t1 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½Ï±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ GradingTypeCorrespond
         //    .ToList<TwoTableClass>();
         //string formattedTime = System.DateTime.Now.ToString("[HH:mm:ss.fff]");
         //_ = PublicMdethod.ReadRedis();
 
 
-        ////½«Õâ¸öresult×ª³ÉstringÊı×é
+        ////ï¿½ï¿½ï¿½ï¿½ï¿½result×ªï¿½ï¿½stringï¿½ï¿½ï¿½ï¿½
         //string[] resultArray = new string[result.Count];
         //for (int i = 0; i < result.Count; i++)
         //{
         //    resultArray[i] = result[i].id + ", " + result[i].name + " ," + result[i].code+ ", " + result[i].grading_position +","+ result[i].created_time;
         //}
-        var DB=SQLiteHelper.Instance;
+        var DB =SQLiteHelper.Instance;
        var stu= DB.ExecuteQuery("select * from datachange_log");
         //RedisExample.ListOperations("message", resultArray);
-        CheckboxTest(res);
+        //CheckboxTest(res);
         OptionButtonTest();
-        var db = Project.Current.Get<InfluxDBStoreLocal>("DataStores/LocalInfluxDBDatabase");
-        string[] columnNames = new string[]
-        {
-    "id",
-    "lot_no",
-    "create_time",
-    "region",
-    "line_no",
-    "grading_position",
-    "if_ng",
-    "ng_reason",
-    "box_no",
-    "if_corner",
-    "lot_number",
-    "electric",
-    "color",
-    "grade",
-    "item",
-    "order",
-    "power",
-    "ff",
-    "product_family",
-    "nameplate_qrInfo",
-    "double_nameplate_qrInfo",
-    "side_module_no",
-    "max_num",
-    "rule_type",
-    "status",
-    "if_force_pack"
-        };
-        // ÌáÈ¡Öµµ½¶şÎ¬Êı×é£¨ÕâÀïÊÇ1ĞĞ26ÁĞµÄ½á¹¹£¬¶ÔÓ¦Ò»ÌõÊı¾İ£©
-        object[,] results = new object[1, 26];
-        results[0, 0] = 89;  // id
-        results[0, 1] = "R012505260004";  // lot_no
-        results[0, 2] = "2025-05-26 14:23:20.837046";  // create_time
-        results[0, 3] = "A";  // region
-        results[0, 4] = "1";  // line_no
-        results[0, 5] = "1µµ";  // grading_position
-        results[0, 6] = 1;  // if_ng
-        results[0, 7] = "";  // ng_reason
-        results[0, 8] = "a001";  // box_no
-        results[0, 9] = 1;  // if_corner
-        results[0, 10] = 14;  // lot_number
-        results[0, 11] = "I3";  // electric
-        results[0, 12] = "Z";  // color
-        results[0, 13] = "490";  // grade
-        results[0, 14] = "aa";  // item
-        results[0, 15] = "DJ254M1008";  // order
-        results[0, 16] = "1.996A";  // power
-        results[0, 17] = "0.99";  // ff
-        results[0, 18] = "TSM-490DE18M(II)";  // product_family
-        results[0, 19] = " nameplateQRInfo";  // nameplate_qrInfo
-        results[0, 20] = "double";  // double_nameplate_qrInfo
-        results[0, 21] = "sideModuleNo";  // side_module_no
-        results[0, 22] = 14;  // max_num
-        results[0, 23] = "0000";  // rule_type
-        results[0, 24] = "Õı³£";  // status
-        results[0, 25] = 0;  // if_force_pack
-        
-        db.Insert("grading_record_log", columnNames, results);
-        string sql = "SELECT* FROM grading_record_log ";
-        string[] columnName;
-        object[,] resul;
-        db.Insert("grading_record_log",columnNames,results);
-        var resultdata = db.Tables["grading_record_log"].Columns.AsQueryable(); // °´±íÃû»ñÈ¡
+        var result = Project.Current.GetVariable("Model/checked").Value.Value;
 
     }
     /// <summary>
-    /// ÏÂÔØÎÄ¼ş¹¦ÄÜ
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     [ExportMethod]
     public static void SaveFile()
@@ -165,24 +118,25 @@ public class RuntimeNetLogic1 : BaseNetLogic
    ExcelHelper.FileDownExcel();
 
     }
- 
+
     /// <summary>
-    /// ¸´Ñ¡¿òÑ¡ÖĞÊÂ¼ş
+    /// å¤é€‰æŒ‰é’®æµ‹è¯•
     /// </summary>
-    /// <param name="res"></param>
+    /// <param name = "res" ></ param >
     public static void CheckboxTest(string res)
     {
         if (res == "1")
         {
-            Logger.Info("¸´Ñ¡°´Å¥Ñ¡ÖĞ×´Ì¬");
+            Logger.Info("æŒ‰é’®è¢«é€‰ä¸­");
+
         }
         else
         {
-            Logger.Info("¸´Ñ¡°´Å¥Î´Ñ¡ÖĞ×´Ì¬");
+            Logger.Info("æŒ‰é’®æœªé€‰ä¸­");
         }
     }
     /// <summary>
-    /// µ¥Ñ¡°´Å¥È¡Öµ
+    ///å•é€‰æŒ‰é’®æµ‹è¯•
     /// </summary>
     public static void OptionButtonTest()
     {
@@ -201,9 +155,26 @@ public class RuntimeNetLogic1 : BaseNetLogic
 
 
     }
-    
+  
+    public static void LoadVM()
+    {
+        #region æ’å…¥user_roleæ•°æ®åˆ°Store
+        var (sql, path) = ("SELECT * from user_role", Project.Current.GetVariable("Model/SqlliteDataPath")?.Value?.Value?.ToString() ?? throw new InvalidOperationException("SqlliteDataPathä¸å­˜åœ¨"));
+        var dt = new SQLiteHelper(path).ExecuteQuery(sql);
+        var converters = new Dictionary<string, Func<object, object>>
+        {
+            ["role"] = value =>
+            {
+                var strValue = (value == DBNull.Value ? null : value)?.ToString() ?? string.Empty;
+                return strValue == "1" ? "æ™®é€šç”¨æˆ·" : "ç®¡ç†å‘˜";
+            }
+        };
+        PubilcMethodHelper.InsertStore("user_role", dt, new string[] { "user_account", "password", "role" }, converters);
+        #endregion
 
 
+
+    }
 
 
 }

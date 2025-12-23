@@ -25,7 +25,7 @@ namespace TestProject1.Helper
                 .WriteTo.File(
                     path: logFilePath,
                     rollingInterval: RollingInterval.Day, // 按天滚动
-                    rollOnFileSizeLimit: true,
+                    rollOnFileSizeLimit: false,
                     fileSizeLimitBytes: 10 * 1024 * 1024, // 10MB
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
                     retainedFileCountLimit: 30 // 保留30天日志
