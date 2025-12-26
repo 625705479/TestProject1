@@ -17,7 +17,9 @@ namespace TestProject1
         public static readonly NodeId MainWindow1 = new NodeId(namespaceIndex, new Guid("765b381ee5b7723058965079eca0fe25"));
         public static readonly NodeId StringFormatter1 = new NodeId(namespaceIndex, new Guid("5c43f51785599b8b9d3c807e2c3078c6"));
         public static readonly NodeId ConditionalConverter1 = new NodeId(namespaceIndex, new Guid("f68775dde7b32cdd9c33b159fb431cbe"));
+        public static readonly NodeId ConfirmationDialog = new NodeId(namespaceIndex, new Guid("7551a426e4563338f7085d5382147786"));
         public static readonly NodeId EngineeringUnitConverter1 = new NodeId(namespaceIndex, new Guid("956c64ef38d0e98a94a1baaa70dc3746"));
+        public static readonly NodeId ConfirmationDialogContext = new NodeId(namespaceIndex, new Guid("8be70b385fa6b0c193148c04d2961b0b"));
         public static readonly NodeId CalendarPickerElement = new NodeId(namespaceIndex, new Guid("09729a28f8e879ce7c75f655034a218c"));
         public static readonly NodeId CalendarPickerDialog = new NodeId(namespaceIndex, new Guid("bbd28155a406d75157573b23ec4083ec"));
     }

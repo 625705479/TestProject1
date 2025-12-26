@@ -10,6 +10,9 @@ using FTOptix.CommunicationDriver;
 using FTOptix.Modbus;
 using FTOptix.SQLiteStore;
 using FTOptix.Store;
+using FTOptix.System;
+using FTOptix.SerialPort;
+using FTOptix.UI;
 
 namespace TestProject1
 {

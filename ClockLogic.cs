@@ -14,6 +14,9 @@ using FTOptix.InfluxDBStoreLocal;
 using FTOptix.OmronFins;
 using FTOptix.CommunicationDriver;
 using FTOptix.Modbus;
+using FTOptix.System;
+using FTOptix.SerialPort;
+using FTOptix.UI;
 #endregion
 
 public class ClockLogic : BaseNetLogic

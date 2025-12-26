@@ -37,6 +37,8 @@ using TestProject1;
 using TestProject1.Helper;
 using TestProject1.Model;
 using UAManagedCore;
+using FTOptix.System;
+using FTOptix.SerialPort;
 using static SQLite.SQLite3;
 #endregion
 
@@ -62,7 +64,7 @@ public class RuntimeNetLogic1 : BaseNetLogic
     [ExportMethod]
     public static void UpdateXmlAndCreateXML()
     {
-        string excelPath = @"E:\generate新增点位.xlsx";//excel �ļ�·��
+        string excelPath = @"E:\generate新增点位.xlsx";//模板excel
         string xmlPath = @"E:\generate\generatexml\ThingTemplates_TS.Module.LAMINATEDREFLUXLINEM.Alarm.ThingTemplates.xml";//Ҫ�޸ĵ�xml�ļ�·��
         ExcelToXmlGenerator.GenerateXmlFromExcel(excelPath, xmlPath);
         CreateXml.PropertyBindServices();
@@ -76,6 +78,7 @@ public class RuntimeNetLogic1 : BaseNetLogic
     public static void Showdata(string res)
     {
         LoadVM();
+        //PublicMethod.ReadRedis();
         //测试SQLite
         //var db = new SQLiteHelper(dbPath);
         ////var x = db.Query("datachange_log").Where(" lot_no = @p2","10111").ToList();
@@ -93,8 +96,8 @@ public class RuntimeNetLogic1 : BaseNetLogic
         //    .ToList<TwoTableClass>();
         //string formattedTime = System.DateTime.Now.ToString("[HH:mm:ss.fff]");
         //_ = PublicMdethod.ReadRedis();
-
-
+        //RedisExample.GetConnection();
+        // ExecRedis();
         ////�����resultת��string����
         //string[] resultArray = new string[result.Count];
         //for (int i = 0; i < result.Count; i++)
@@ -169,13 +172,62 @@ public class RuntimeNetLogic1 : BaseNetLogic
                 return strValue == "1" ? "普通用户" : "管理员";
             }
         };
-        PubilcMethodHelper.InsertStore("user_role", dt, new string[] { "user_account", "password", "role" }, converters);
+        var data = new SQLiteHelper(path).ExecuteQuery("SELECT * from corner_flip_rule");
+        PubilcMethodHelper.InsertStore("user_role", dt, converters);
+        PubilcMethodHelper.InsertStore("corner_flip_rule", data);
         #endregion
-
+        PubilcMethodHelper.RabbitMQTest();
 
 
     }
+    public static void ExecRedis()
+    {
 
+
+        // 调用2：带过期时间（15分钟过期）
+        bool isSuccess2 = RedisExample.Operate(
+            type: RedisExample.RedisType.String,
+            key: "user:code:1001",
+            value: "886699", // 验证码
+            dbIndex: 1,      // 使用数据库1
+            useExpire: true, // 开启过期
+            expireMinutes: 15
+        );
+        Console.WriteLine($"String存储（带过期）：{(isSuccess2 ? "成功" : "失败")}");
+        // 调用：存储哈希表
+
+        bool isSuccess1 = RedisExample.Operate(
+    type: RedisExample.RedisType.Set,
+    key: "user:tags:1001",
+    value: "运动" // value 为单个字符串
+);
+
+        // 调用2：继续添加标签（自动去重）
+        bool isSuccess3 = RedisExample.Operate(
+            type: RedisExample.RedisType.Set,
+            key: "user:tags:1001",
+            value: "音乐"
+        );
+        Console.WriteLine($"Set添加标签：{(isSuccess1 && isSuccess3 ? "成功" : "失败")}");
+        // 构造 Stream 字段集合（NameValueEntry 是 StackExchange.Redis 类型）
+        NameValueEntry[] streamMsg = new[]
+        {
+    new NameValueEntry("orderId", "20250001"),
+    new NameValueEntry("amount", "99.9"),
+    new NameValueEntry("status", "已支付"),
+    new NameValueEntry("payTime", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))
+};
+
+        // 调用：添加 Stream 消息
+        bool isSuccess11 = RedisExample.Operate(
+            type: RedisExample.RedisType.Stream,
+            key: "order:pay:stream", // 流名称
+            streamEntries: streamMsg, // Stream 字段（value 可忽略）
+            dbIndex: 2,
+            useExpire: false // Stream 一般不设置过期，按需调整
+        );
+        Console.WriteLine($"Stream添加消息：{(isSuccess11 ? "成功" : "失败")}");
+    }
 
 }
 

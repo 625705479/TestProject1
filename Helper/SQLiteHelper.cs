@@ -1,4 +1,5 @@
 ﻿
+using FTOptix.HMIProject;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -49,8 +50,8 @@ namespace TestProject1
                     {
                         if (_instance == null)
                         {
-                            string dbPath = @"E:\aa\Test.db";
-                            _instance = new SQLiteHelper(dbPath);
+                          var DbString=  Project.Current.GetVariable("Model/SqlliteDataPath").Value.Value.ToString();
+                            _instance = new SQLiteHelper(DbString);
                         }
                     }
                 }

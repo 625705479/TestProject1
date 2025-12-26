@@ -20,6 +20,11 @@ public class MainWindow1 : FTOptix.UI.Window
 {
 }
 
+[MapType(NamespaceUri = "TestProject1", Guid = "7551a426e4563338f7085d5382147786")]
+public class ConfirmationDialog : FTOptix.UI.Dialog
+{
+}
+
 [MapType(NamespaceUri = "TestProject1", Guid = "09729a28f8e879ce7c75f655034a218c")]
 public class CalendarPickerElement : FTOptix.UI.Rectangle
 {
