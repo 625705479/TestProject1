@@ -277,11 +277,10 @@ namespace TestProject1
         {
 
             // 创建连接
-            var plc = new Plc(CpuType.S7300, "127.0.0.1", 0, 2); // 根据实际情况配置IP地址、机架号和插槽号
+            var plc = new Plc(CpuType.S71200, "127.0.0.1", 0, 2); // 根据实际情况配置IP地址、机架号和插槽号
             plc.Open();
             if (plc.IsConnected)
             {
-                Console.WriteLine("连接到汇川PLC成功");
                 plc.Read("DB1.DBW10");
                 plc.Write("DB1.DBW10", new ushort[] { 123, 456 });
                 plc.Write("DB1.DBW11", 11);
@@ -299,5 +298,7 @@ namespace TestProject1
             return db;
 
         }
+
+
         }
     }

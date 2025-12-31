@@ -110,6 +110,7 @@ public class RuntimeNetLogic1 : BaseNetLogic
         //CheckboxTest(res);
         OptionButtonTest();
         var result = Project.Current.GetVariable("Model/checked").Value.Value;
+        DB.DeleteEntity<GradingDetail>(18,"id");
 
     }
     /// <summary>
@@ -177,7 +178,7 @@ public class RuntimeNetLogic1 : BaseNetLogic
         PubilcMethodHelper.InsertStore("corner_flip_rule", data);
         #endregion
         PubilcMethodHelper.RabbitMQTest();
-
+ 
 
     }
     public static void ExecRedis()

@@ -1,5 +1,6 @@
 ﻿
 using FTOptix.HMIProject;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,6 +14,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+
+using TestProject1.Helper;
 using UAManagedCore;
 
 namespace TestProject1
@@ -1333,10 +1336,14 @@ namespace TestProject1
                         {
                             // 添加参数
                             command.Parameters.AddWithValue("@primaryKeyNameValue", primaryKeyNameValue);
-
+                            //添加缓存记录
+                            string sql = $"SELECT * FROM  {tableName} WHERE {primaryKeyName}={primaryKeyNameValue}";
+                            var dt = ExecuteQuery(sql); var json = JsonConvert.SerializeObject(dt);
+                            Utilities.SaveToFileCache(tableName + "Json", json, TimeSpan.FromMinutes(200));
                             // 执行删除操作
                             int rowsAffected = command.ExecuteNonQuery();
                             Log.Info($"{rowsAffected} 行受影响");
+                  
                         }
                     }
 
